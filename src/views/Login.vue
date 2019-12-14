@@ -20,7 +20,7 @@
 
         <FormItem>
           <Button type="primary" :loading="isLogining" @click="login">
-            <span v-if="!logining">登录</span>
+            <span v-if="!isLogining">登录</span>
             <span v-else>登录中...</span>
           </Button>
         </FormItem>
@@ -63,7 +63,7 @@ export default {
           const { data: res } = await loginAPI(this.userForm)
 
           if (res.success) {
-            console.log(res)
+            // console.log(res)
             sessionStorage.setItem('token', ' bearer ' + res.data.token)
             this.$router.push('/home')
           }
