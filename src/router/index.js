@@ -16,7 +16,14 @@ const routes = [
   {
     path: '/home',
     name: 'home',
-    component: () => import('../views/Home.vue')
+    component: () => import('../views/Home.vue'),
+    children: [
+      {
+        path: 'packaging_type',
+        name: 'packaging_type',
+        component: () => import('../views/home/PackagingType.vue')
+      }
+    ]
   }
 ]
 
