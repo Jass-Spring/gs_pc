@@ -7,25 +7,42 @@ html,body,#app {
   height: 100%;
 }
 
-// .ivu-layout-content {
-//   article {
-//     height: 100%;
-//     overflow: auto;
-//     background-color: #ffffff;
+article {
+  height: 100%;
+  padding: 50px;
+  background-color: #ffffff;
+  overflow: auto;
 
-//     .ivu-card {
-//       margin: 20px;
-//     }
-//   }
-// }
+  header {
+    .ivu-form {
+      display: flex;
+      justify-content: space-between;
 
-// .ivu-card {
-//   .ivu-form-item {
-//     margin-right: 24px;
-//   }
-// }
+      .ivu-form-item {
+        &:nth-child(2) {
+          margin-right: 0;
+        }
 
-// .ivu-page {
-//   padding-top: 20px;
-//   text-align: right;
-// }
+        /deep/ .ivu-form-item-label {
+          font-size: 16px;
+          line-height: 20px;
+        }
+      }
+    }
+  }
+
+  footer {
+    padding-top: 24px;
+    text-align: right;
+  }
+}
+
+.ivu-table {
+  .ivu-table-cell {
+    button {
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
+  }
+}

@@ -1,22 +1,16 @@
 <template>
   <FormItem :label="labelText" :label-width="labelWidth" :prop="validateRule">
-    <Input
+    <InputNumber
       v-model="value"
-      :type="inputType"
-      :size="inputSize"
-      :placeholder="placeHolder"
-      :prefix="leftIcon"
-      :icon="rightIcon"
-      :search="isSearch"
-      :enter-button="showEnter"
-      :number="isNumber"
-      @on-search="$emit('search')" />
+      :precision="precision"
+      :min="min"
+      :max="max" />
   </FormItem>
 </template>
 
 <script>
 export default {
-  props: ['label-text', 'label-width', 'validate-rule', 'input-type', 'input-size', 'place-holder', 'left-icon', 'right-icon', 'is-search', 'show-enter', 'is-number', 'model'],
+  props: ['label-text', 'label-width', 'validate-rule', "precision", 'min', 'max', 'model'],
   model: {
     prop: 'model',
     event: 'input'

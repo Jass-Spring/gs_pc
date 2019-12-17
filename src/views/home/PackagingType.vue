@@ -1,18 +1,20 @@
 <template>
   <article>
     <header>
-      <Form :label-width="80" label-position="left" inline>
-        <!-- <FormItem label="库区名称">
-          <Input v-model="searchInfo.params.reservoirAreaName" size='large' placeholder="请输入库区名称" @on-search="getListByParams" search enter-button/>
-        </FormItem> -->
-        <input-item
-          v-model="searchInfo.params.reservoirAreaName"
+      <!-- <Form :label-width="80" label-position="left" inline> -->
+      <Form>
+        <!-- <input-item
+          v-model="searchInfo.params.name"
           label-text="库区名称"
           input-size="large"
           place-holder="请输入库区名称"
           :is-search="true"
-          :show-enter="true">
-        </input-item>
+          :show-enter="true"
+          @search="searchByName" >
+        </input-item> -->
+        <FormItem>
+          <Button type="primary" size='large' icon="md-sync" @click="init()"></Button>
+        </FormItem>
 
         <FormItem>
           <Button icon='md-add' type="success" size="large" @click="showEditModal()">新增</Button>
@@ -26,15 +28,15 @@
         :columns="packagingTypeHead"
         :data="packagingTypeList"
         border>
-        <template v-slot:action="{ row, index }">
-          <Button type="primary" size="small">编辑</Button>
-          <Button type="warning" size="small">{{ row.status == 1 ? '停用' : '启用' }}</Button>
+        <template v-slot:action="{ row }">
+          <Button type="primary" size="small" @click="showEditModal(row)">编辑</Button>
+          <Button type="warning" size="small" @click="switchPackagingType(row)">{{ row.status == 1 ? '停用' : '启用' }}</Button>
         </template>
       </Table>
     </section>
 
     <footer>
-      <Page :page-size="searchInfo.limit" :current="searchInfo.page" :total="total" show-total />
+      <Page :page-size="searchInfo.limit" :current="searchInfo.page" :total="total" @on-change="changePage" show-total />
     </footer>
 
     <Modal v-model="editModalflag" :title="modalTitle" :closable="false" :mask-closable="false">
@@ -58,15 +60,13 @@
           validate-rule="packagingTypeToCalculate">
         </input-item>
 
-        <!-- <FormItem label="排序" prop="order" required>
-          <InputNumber v-model="packagingTypeForm.order" :precision="0" :min="1"></InputNumber>
-        </FormItem> -->
-        <input-item
-          v-model="packagingTypeForm.order"
-          :is-number="true"
-          label-text="排序"
-          validate-rule="order">
-        </input-item>
+        <number-item
+         v-model="packagingTypeForm.order"
+         :precision="0"
+         :min="1"
+         label-text="排序"
+         validate-rule="order">
+        </number-item>
 
         <radio-item
           v-model="packagingTypeForm.status"
@@ -82,11 +82,11 @@
         </input-item>
       </Form>
 
-      <!-- <Spin size="large" fix v-if="editLaoding"></Spin> -->
+      <Spin size="large" fix v-if="editLaoding"></Spin>
 
       <template slot="footer">
-        <Button type="default">取消</Button>
-        <Button type="primary" @click="temp">确定</Button>
+        <Button type="default" @click="hideEditModal">取消</Button>
+        <Button type="primary" @click="certainEdit">确定</Button>
       </template>
     </Modal>
   </article>
@@ -102,6 +102,7 @@ import {
 } from '../../api/PackagingType.js'
 import InputItemVue from '../../components/InputItem.vue'
 import RadioItemVue from '../../components/RadioItem.vue'
+import NumberItemVue from '../../components/NumberItem.vue'
 
 export default {
   data () {
@@ -113,18 +114,19 @@ export default {
           name: ''
         }
       },
-      
+
       packagingTypeLoading: false,
       packagingTypeHead: [
         { align: 'center', title: '包装类型', key: 'packagingTypeName' },
         { align: 'center', title: '排序', key: 'order' },
         { align: 'center', title: '状态', key: 'statusStr' },
         { align: 'center', title: '备注', key: 'packagingTypeRemark' },
-        { align: 'center', width: 200, title: '操作', slot: 'action' }
+        { align: 'center', width: 150, title: '操作', slot: 'action' }
       ],
       packagingTypeList: [],
 
       modalTitle: '',
+      packagingTypeId: '',
       packagingTypeForm: {
         packagingTypeName: '',
         packagingTypeToCalculateType: null,
@@ -135,24 +137,23 @@ export default {
       },
       packagingTypeRules: {
         packagingTypeName: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, type: 'string', message: '不能为空', trigger: 'blur' }
         ],
         packagingTypeToCalculateType: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, type: 'number', message: '不能为空', trigger: 'blur' }
         ],
         packagingTypeToCalculate: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, type: 'string', message: '不能为空', trigger: 'blur' }
         ],
         order: [
-          { required: true, message: '不能为空', trigger: 'blur' },
-          { pattern: /^[0-9]\d*$/, message: '请输入一个整数' }
+          { required: true, type: 'number', message: '不能为空', trigger: 'blur' }
         ],
         status: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+          { required: true, type: 'number', message: '不能为空', trigger: 'blur' }
         ],
         packagingTypeRemark: [
-          { required: true, message: '不能为空', trigger: 'blur' }
-        ],
+          { required: true, type: 'string', message: '不能为空', trigger: 'blur' }
+        ]
       },
       calculateTypes: [
         { value: 1, text: '按件收费' },
@@ -165,13 +166,25 @@ export default {
 
       total: 0,
 
-      editModalflag: false
+      editModalflag: false,
+      editLaoding: false
     }
   },
   created () {
-    this.searchPackagingType()
+    this.init()
   },
   methods: {
+    init () {
+      this.searchInfo.page = 1
+      this.searchInfo.limit = 10
+      this.searchInfo.params.name = ''
+      this.searchPackagingType()
+    },
+    changePage (page) {
+      this.searchInfo.page = page
+      this.searchInfo.limit = 10
+      this.searchPackagingType()
+    },
     async searchPackagingType () {
       this.packagingTypeLoading = true
 
@@ -185,52 +198,89 @@ export default {
 
       this.packagingTypeLoading = false
     },
-    showEditModal(row, index) {
+    showEditModal (row, index) {
       this.editModalflag = true
       if (row) {
-        
+        this.modalTitle = '编辑'
+        this.packagingTypeId = row.packagingTypeId
+        this.packagingTypeForm.packagingTypeName = row.packagingTypeName
+        this.packagingTypeForm.packagingTypeToCalculateType = row.packagingTypeToCalculateType
+        this.packagingTypeForm.packagingTypeToCalculate = row.packagingTypeToCalculate
+        this.packagingTypeForm.order = row.order
+        this.packagingTypeForm.status = row.status
+        this.packagingTypeForm.packagingTypeRemark = row.packagingTypeRemark
       } else {
         this.modalTitle = '新增'
       }
     },
-    temp () {
-      this.$refs['packaging-type-form'].validate(valid => {
-        console.log(valid)
+    hideEditModal () {
+      this.$refs['packaging-type-form'].resetFields()
+      this.editModalflag = false
+      this.packagingTypeId = ''
+    },
+    certainEdit () {
+      this.$refs['packaging-type-form'].validate(async valid => {
+        if (valid) {
+          if (this.packagingTypeId) {
+            this.patchPackagingType()
+          } else {
+            this.addPackagingType()
+          }
+        } else {
+          this.$message.error('请输入正确信息')
+        }
       })
+    },
+    async addPackagingType () {
+      this.editLaoding = true
+
+      await this.$utils.sleep(1000)
+      const { data: res } = await addPackagingTypeAPI(this.packagingTypeForm)
+      // console.log(res)
+      if (res.success) {
+        this.hideEditModal()
+        this.init()
+      }
+
+      this.editLaoding = false
+    },
+    async patchPackagingType () {
+      this.editLaoding = true
+
+      await this.$utils.sleep(1000)
+      const { data: res } = await patchPackagingTypeAPI(Object.assign(this.packagingTypeForm, { packagingTypeId: this.packagingTypeId }))
+      // console.log(res)
+      if (res.success) {
+        this.hideEditModal()
+        this.init()
+      }
+
+      this.editLaoding = false
+    },
+    async switchPackagingType (row) {
+      const obj = {}
+      Object.assign(obj, row)
+      obj.status = obj.status == 1 ? 0 : 1
+
+      this.packagingTypeLoading = true
+
+      await this.$utils.sleep(1000)
+      const { data: res } = await patchPackagingTypeAPI(obj)
+      // console.log(res)
+      if (res.success) {
+        this.hideEditModal()
+        this.init()
+      }
     }
   },
   components: {
     'input-item': InputItemVue,
-    'radio-item': RadioItemVue
+    'radio-item': RadioItemVue,
+    'number-item': NumberItemVue
   }
 }
 </script>
 
 <style lang="less" scoped>
-article {
-  padding: 50px;
 
-  header {
-    .ivu-form {
-      display: flex;
-      justify-content: space-between;
-
-      .ivu-form-item {
-        &:nth-child(2) {
-          margin-right: 0;
-        }
-
-        /deep/ .ivu-form-item-label {
-          font-size: 16px;
-          line-height: 20px;
-        }
-      }
-    }
-  }
-
-  footer {
-    padding-top: 24px;
-    text-align: right;
-  }
-}
 </style>

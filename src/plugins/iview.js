@@ -5,6 +5,7 @@ import {
   Message,
   Modal,
   Page,
+  Spin,
   Table,
   Layout,
   Header,
@@ -25,6 +26,7 @@ Vue.component('Button', Button)
 Vue.component('Icon', Icon)
 Vue.component('Modal', Modal)
 Vue.component('Page', Page)
+Vue.component('Spin', Spin)
 Vue.component('Table', Table)
 Vue.component('Layout', Layout)
 Vue.component('Header', Header)
