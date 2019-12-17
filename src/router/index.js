@@ -19,9 +19,14 @@ const routes = [
     component: () => import('../views/Home.vue'),
     children: [
       {
+        path: 'packing_order',
+        name: 'packing_order',
+        component: () => import('../views/home/PackingOrder.vue')
+      },
+      {
         path: 'packaging_type',
         name: 'packaging_type',
-        component: () => import('../views/home/PackagingType.vue')
+        component: () => import('../views/home/data/base/PackagingType.vue')
       }
     ]
   }

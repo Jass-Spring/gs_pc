@@ -4,18 +4,18 @@
       <Form :model="userForm" :rules="userRule" ref="user-form">
         <input-item
           v-model="userForm.userName"
-          :validate-rule="'userName'"
-          :input-type="'text'"
-          :place-holder="'账号'"
-          :left-icon="'ios-person-outline'">
+          validate-rule="userName"
+          input-type="text"
+          place-holder="账号"
+          left-icon="ios-person-outline">
         </input-item>
 
         <input-item
           v-model="userForm.password"
-          :validate-rule="'password'"
-          :input-type="'password'"
-          :place-holder="'账号'"
-          :left-icon="'ios-lock-outline'">
+          validate-rule="password"
+          input-type="password"
+          place-holder="账号"
+          left-icon="ios-lock-outline">
         </input-item>
 
         <FormItem>
@@ -62,8 +62,8 @@ export default {
           await this.$utils.sleep(1000)
           const { data: res } = await loginAPI(this.userForm)
 
+          // console.log(res)
           if (res.success) {
-            // console.log(res)
             sessionStorage.setItem('token', ' bearer ' + res.data.token)
             this.$router.push('/home')
           }

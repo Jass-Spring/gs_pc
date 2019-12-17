@@ -2,7 +2,7 @@
   <article>
     <header>
       <!-- <Form :label-width="80" label-position="left" inline> -->
-      <Form>
+      <Form class="data-header">
         <!-- <input-item
           v-model="searchInfo.params.name"
           label-text="库区名称"
@@ -99,10 +99,10 @@ import {
   patchPackagingTypeAPI,
   deletePackagingTypeAPI,
   initPackagingTypeAPI
-} from '../../api/PackagingType.js'
-import InputItemVue from '../../components/InputItem.vue'
-import RadioItemVue from '../../components/RadioItem.vue'
-import NumberItemVue from '../../components/NumberItem.vue'
+} from '../../../../api/PackagingType.js'
+import InputItemVue from '../../../../components/InputItem.vue'
+import RadioItemVue from '../../../../components/RadioItem.vue'
+import NumberItemVue from '../../../../components/NumberItem.vue'
 
 export default {
   data () {
